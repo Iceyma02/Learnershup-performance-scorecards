@@ -2,8 +2,9 @@ import { useState } from "react";
 import ScorecardView from "./components/ScorecardView.jsx";
 import { facilitatorScorecard } from "./data/facilitatorScorecard.js";
 import { coordinatorScorecard } from "./data/coordinatorScorecard.js";
+import { ljcScorecard } from "./data/ljcScorecard.js";
 
-const ROLES = [facilitatorScorecard, coordinatorScorecard];
+const ROLES = [facilitatorScorecard, coordinatorScorecard, ljcScorecard];
 
 export default function App() {
   const [activeId, setActiveId] = useState(facilitatorScorecard.id);
@@ -11,7 +12,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="app__header">
+      <header className="app__header no-print">
         <div className="app__header-text">
           <p className="app__eyebrow">Learning Journey Management</p>
           <h1>Performance Scorecards</h1>
@@ -36,7 +37,7 @@ export default function App() {
         <ScorecardView key={active.id} scorecard={active} />
       </main>
 
-      <footer className="app__footer">
+      <footer className="app__footer no-print">
         <span>Assessment frequency: {active.frequency}</span>
         <span>Overall score: 100 points</span>
       </footer>
