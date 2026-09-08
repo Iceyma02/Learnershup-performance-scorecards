@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import CategoryCard from "./CategoryCard.jsx";
 import OverviewPanel from "./OverviewPanel.jsx";
 import EvaluationHistory from "./EvaluationHistory.jsx";
+import PrintableReport from "./PrintableReport.jsx";
 import { overallScore, classificationFor } from "../utils/calculations.js";
 import { loadHistory, saveHistory } from "../utils/storage.js";
 
@@ -55,9 +56,13 @@ export default function ScorecardView({ scorecard }) {
     saveHistory(scorecard.id, next);
   }
 
+  function handlePrint() {
+    window.print();
+  }
+
   return (
     <div className="scorecard-view">
-      <div className="scorecard-view__main">
+      <div className="scorecard-view__main no-print">
         <div className="ident-bar">
           <label>
             <span>{scorecard.evalueeLabel} name</span>
@@ -81,6 +86,9 @@ export default function ScorecardView({ scorecard }) {
             <button type="button" className="btn-secondary" onClick={handleReset}>
               Reset
             </button>
+            <button type="button" className="btn-secondary" onClick={handlePrint}>
+              Print / Save as PDF
+            </button>
             <button type="button" className="btn-primary" onClick={handleSave}>
               Save evaluation
             </button>
@@ -98,7 +106,7 @@ export default function ScorecardView({ scorecard }) {
         ))}
       </div>
 
-      <div className="scorecard-view__side">
+      <div className="scorecard-view__side no-print">
         <OverviewPanel
           scorecard={scorecard}
           ratings={ratings}
@@ -107,10 +115,17 @@ export default function ScorecardView({ scorecard }) {
         />
       </div>
 
-      <div className="scorecard-view__history">
+      <div className="scorecard-view__history no-print">
         <h4>Saved evaluations</h4>
         <EvaluationHistory history={history} onLoad={handleLoad} onDelete={handleDelete} />
       </div>
+
+      <PrintableReport
+        scorecard={scorecard}
+        ratings={ratings}
+        evaluee={evaluee}
+        period={period}
+      />
     </div>
   );
 }
