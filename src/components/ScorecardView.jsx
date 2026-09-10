@@ -5,12 +5,14 @@ import EvaluationHistory from "./EvaluationHistory.jsx";
 import PrintableReport from "./PrintableReport.jsx";
 import { overallScore, classificationFor } from "../utils/calculations.js";
 import { loadHistory, saveHistory } from "../utils/storage.js";
+import { buildReportFilename } from "../utils/filename.js";
 
 export default function ScorecardView({ scorecard }) {
   const [evaluee, setEvaluee] = useState("");
   const [period, setPeriod] = useState("");
   const [ratings, setRatings] = useState({});
   const [history, setHistory] = useState([]);
+  const [printQueued, setPrintQueued] = useState(false);
 
   useEffect(() => {
     setHistory(loadHistory(scorecard.id));
@@ -56,9 +58,41 @@ export default function ScorecardView({ scorecard }) {
     saveHistory(scorecard.id, next);
   }
 
-  function handlePrint() {
+  // Sets the document title to the evaluee/period/role-based filename so the
+  // browser's print dialog ("Save as PDF") suggests that name, then restores
+  // the original tab title once the dialog closes.
+  function doPrint(evalueeVal, periodVal) {
+    const originalTitle = document.title;
+    document.title = buildReportFilename(evalueeVal, periodVal, scorecard.shortName);
+
+    const restore = () => {
+      document.title = originalTitle;
+      window.removeEventListener("afterprint", restore);
+    };
+    window.addEventListener("afterprint", restore);
+    setTimeout(restore, 5000); // fallback for browsers that skip afterprint
+
     window.print();
   }
+
+  function handlePrint() {
+    doPrint(evaluee, period);
+  }
+
+  function handleDownload(record) {
+    setEvaluee(record.evaluee);
+    setPeriod(record.period);
+    setRatings(record.ratings);
+    setPrintQueued(true);
+  }
+
+  useEffect(() => {
+    if (printQueued) {
+      doPrint(evaluee, period);
+      setPrintQueued(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [printQueued]);
 
   return (
     <div className="scorecard-view">
@@ -117,7 +151,12 @@ export default function ScorecardView({ scorecard }) {
 
       <div className="scorecard-view__history no-print">
         <h4>Saved evaluations</h4>
-        <EvaluationHistory history={history} onLoad={handleLoad} onDelete={handleDelete} />
+        <EvaluationHistory
+          history={history}
+          onLoad={handleLoad}
+          onDelete={handleDelete}
+          onDownload={handleDownload}
+        />
       </div>
 
       <PrintableReport
