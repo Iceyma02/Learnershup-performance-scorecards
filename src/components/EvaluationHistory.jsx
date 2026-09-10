@@ -1,4 +1,4 @@
-export default function EvaluationHistory({ history, onLoad, onDelete }) {
+export default function EvaluationHistory({ history, onLoad, onDelete, onDownload }) {
   if (history.length === 0) {
     return (
       <div className="history history--empty">
@@ -37,6 +37,7 @@ export default function EvaluationHistory({ history, onLoad, onDelete }) {
                 <td>{new Date(rec.savedAt).toLocaleDateString()}</td>
                 <td className="history__actions">
                   <button type="button" onClick={() => onLoad(rec)}>Load</button>
+                  <button type="button" onClick={() => onDownload(rec)}>Download</button>
                   <button type="button" className="danger" onClick={() => onDelete(rec.id)}>Delete</button>
                 </td>
               </tr>
